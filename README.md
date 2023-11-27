@@ -1,4 +1,4 @@
-### [1.1. Intro to L1](https://www.youtube.com/watch?v=hYNG0Guezpk)
+## [1.1. Intro to L1](https://www.youtube.com/watch?v=hYNG0Guezpk)
 - symetric/asymetric encryption
 - digital signatures
 - hash functions
@@ -34,7 +34,9 @@
     - modular blockchains: [deep dive](https://volt.capital/blog/modular-blockchains) / [blockspace](https://www.paradigm.xyz/2021/03/ethereum-blockspace-who-gets-what-and-why)
         - execution: smart contracts business logic impl. Can be moved away from the evm (Starknet)
         - settlement/consensus: agreement on state transitions. Is securing the updates to the execution layer
-        - data availability: the ability to verify that the information for a block is actually published on the blockchain network
+        - [data availability](https://ethereum.org/en/developers/docs/data-availability/): where the data is stored and how to make sure it's available to the participants in the system
+            - sampling (DAS): a way for the network to check that data is available. Each node (including non-staking ones) download small, randomly selected subset of data, gaining high confidence that all the data is available
+            - committees (DACs): trusted parties that provide, or attest to, data availability
 - [ethereum consensus](https://ethereum.org/en/developers/docs/consensus-mechanisms/)
     - Technically, proof-of-work and proof-of-stake are not consensus protocols by themselves, but they are often referred to as such for simplicity. They are actually Sybil resistance mechanisms and block author selectors; they are a way to decide who is the author of the latest block. It is this Sybil resistance mechanism combined with a chain selection rule that makes up a true consensus mechanism.
     - block addition has two parts: 
@@ -53,7 +55,7 @@
         - nakamoto continue to add blocks and may not achieve finality
         - Ethereum achives finality by checkpointing (epochs every ~6min)
 
-### [1.2. Why Scalability](https://www.youtube.com/watch?v=IIve3zX2xnw)
+## [1.2. Why Scalability](https://www.youtube.com/watch?v=IIve3zX2xnw)
 - Introduction:
     - regular users can run an eth node ([vitalik](https://vitalik.ca/general/2021/05/23/scaling.html))
     - Ethereum goal is to keep hardware requirements low ([scaling](https://ethereum.org/en/developers/docs/scaling/))
@@ -69,11 +71,12 @@
         - [introduction](https://medium.com/@icebearhww/ethereum-sharding-and-finality-65248951f649)
         - vitalik's [overview](https://vitalik.ca/general/2021/04/07/sharding.html) & [limits](https://vitalik.ca/general/2021/05/23/scaling.html)
     - rollups:
-        - txs are commited to main chain in bundles (they are rolled-up)
         - tx execution outside L1
         - data / proof of txs is on L1
         - rollup smart contract on L1 that can enforce correct tx execution on L2 by using the tx data from L1
-        - needs either optimistic or zk ([fraud proof vs. validity proof](https://www.alchemy.com/overviews/validity-proof-vs-fraud-proof#:~:text=What%20is%20a%20validity%20proof,information%20shared%20between%20the%20two.))
+        - L1 holds the funds; L2 holds state and performs execution
+        - txs are commited to main chain in bundles (they are rolled-up)
+        - are either optimistic or zk ([fraud proof vs. validity proof](https://www.alchemy.com/overviews/validity-proof-vs-fraud-proof#:~:text=What%20is%20a%20validity%20proof,information%20shared%20between%20the%20two.))
         - validity / zk => operator sumbmits a new state transition AND a cryptographic proof (a zk-SNARK) that the new state is valid transition from the old state. The state transitions is validated by a smart contract on L1. Usually the zero knowledge is ignored and input/data involved is public.
         - optimistic => assumes that the nodes are behaving honestly. State transition can be rolled back by providing a "fraud proof". After a certain period the state transition is considered final on L1.
     - state channels: 2 txs on L1 | eth locked in a multisig contract | either party can exit/close the channel ([lightning network](https://lightning.network))
@@ -89,6 +92,60 @@
     - The wallet security transition - everyone moving to [smart contract wallets](https://vitalik.ca/general/2021/01/11/recovery.html)
     - The privacy transition - making sure privacy-preserving funds transfers are available
 
+## [1.3. Intro to L2s / Maths and Cryptography](https://www.youtube.com/watch?v=DIXFlD-2PGU)
 
-### [1.3. Intro to L2s / Maths and Cryptography](https://www.youtube.com/watch?v=DIXFlD-2PGU)
-### [1.4. Maths and Cryptography](https://www.youtube.com/watch?v=vi5I2KcMPxo)
+- Bridges vs. L2
+    - less functional and more specialized
+    - atomic token transfers
+    - lock and mint mechanism
+    - quite widespread ([wormhole](https://wormhole.com/))
+
+- [Optimistic rollups](https://ethereum.org/en/developers/docs/scaling/optimistic-rollups/) in details:
+    - bundle multiple off-chain txs in batches => reduces fees for end users
+    - use compression techniques
+    - if unchallenged within the challange period => it's deemed valid and accepted on L1
+    - others can continue to build on unconfirmed rollup block **BUT** txs results will be reversed if based on an incorrectly executed tx published previously
+    - process:
+        - dev sends tx off-chain to aggregator
+        - aggregator = anyone with a bond => multiple aggregators on the same chain
+        - aggregator decides how fees are paid (acc abstraction / meta-tx)
+        - instant guarantee to dev that tx will be included in the block (or else aggregator loses their bond)
+        - aggregator locally applies the tx & computes the new state root
+        - aggregator sumbits a L1 tx (which contains the L2 tx & state root) and pays for gas (which contains tx & state root)
+        - if block is found invalid => invalidity proved with `verify_state_transition(prev_state, block, witness)`:
+            - slashes the malicious aggregator & any aggregator who built on top of the invaid block
+            - rewards the prover with a portion of the prover's bond
+- [types](https://threadreaderapp.com/thread/1527052511844212738.html) of fraud proof systems:
+    - level 1: admin can upgrade the system within the challenge period
+    - level 2: admin can upgrade the system within the challenge period, but is **permissioned** to allow a few others to run the fault proof
+    - level 3: admin can upgrade the system within the challenge period, but fault proof is **permissionless**
+    - level 4: admin can NOT upgrade the system until users have a chance to withdraw their funds
+- tx compression:
+    - L1 tx takes ~110 bytes. L2 tx takes ~12 bytes (due to superior encoding + other compression tricks)
+- data availability
+    - to recreate the state, tx data is needed
+    - where is data stored and how it's available to participants in the system
+- [StarkNet](https://docs.starknet.io/documentation/):
+    - ZK-Tollup mode (on-chain validity proofs)
+    - state diff is sent as calldata to L1 => anyone can reconstruct the current state of StarkNet
+    - to update the state on L1 it's enough to send a valid proof, without information on the txs or particular changes this update caused. => more info must be provided to allow other parties to locally track StarkNet's state
+- [zkEVM](https://scroll.io/blog/zkEVM):
+    - vm designed to emulate the EVM by recreating all existing EVM opcodes
+    - acts as a state machine, processes state transitions of L2 txs
+    - generates validity proofs that confirm the accuracy of the off-chain state change
+    - two ways to build dApps on zk-Rollups:
+        - app-specific circuit (ASIC):
+            - very limited (R1CS only supports addition and multiplication)
+            - unique circuits for each dapp => reduced overhead
+            - needs high-level dev expertise in circuit design
+        - universal EVM for sart contract execution
+- (Proto) Danksharding:
+    - implements new tx type which will hold additional data field called **blob** (byte string up to ~125kB). 
+    - TODO:
+        - [EIP-4844](https://www.eip4844.com/)
+        - [FAQ](https://notes.ethereum.org/@vbuterin/proto_danksharding_faq#Proto-Danksharding-FAQ)
+        - [KZG polynomial commitments](https://dankradfeist.de/ethereum/2020/06/16/kate-polynomial-commitments.html)
+        - [eip-4844](https://eips.ethereum.org/EIPS/eip-4844)
+        - [eip-4444](https://notes.ethereum.org/@vbuterin/proto_danksharding_faq)
+
+## [1.4. Maths and Cryptography](https://www.youtube.com/watch?v=vi5I2KcMPxo)
