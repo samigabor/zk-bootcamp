@@ -149,3 +149,7 @@
         - [eip-4444](https://notes.ethereum.org/@vbuterin/proto_danksharding_faq)
 
 ## [1.4. Maths and Cryptography](https://www.youtube.com/watch?v=vi5I2KcMPxo)
+
+## [2.1. Understanding and Analysing Layer 2 ](https://www.youtube.com/watch?v=rxZTgcdBiyU)
+
+## [2.2. Agnostic Layer 2 Transaction Lifecycle](https://www.youtube.com/watch?v=_H0fc4vSxq4)
