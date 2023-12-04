@@ -36,7 +36,7 @@
         - settlement/consensus: agreement on state transitions. Is securing the updates to the execution layer
         - [data availability](https://ethereum.org/en/developers/docs/data-availability/): where the data is stored and how to make sure it's available to the participants in the system
             - sampling (DAS): a way for the network to check that data is available. Each node (including non-staking ones) download small, randomly selected subset of data, gaining high confidence that all the data is available
-            - committees (DACs): trusted parties that provide, or attest to, data availability
+            - committees (DACs): trusted parties that provide, or attest to, data availability. PoS DAC are more secure because they direclty incentivize honest behavior
 - [ethereum consensus](https://ethereum.org/en/developers/docs/consensus-mechanisms/)
     - Technically, proof-of-work and proof-of-stake are not consensus protocols by themselves, but they are often referred to as such for simplicity. They are actually Sybil resistance mechanisms and block author selectors; they are a way to decide who is the author of the latest block. It is this Sybil resistance mechanism combined with a chain selection rule that makes up a true consensus mechanism.
     - block addition has two parts: 
@@ -135,21 +135,32 @@
     - generates validity proofs that confirm the accuracy of the off-chain state change
     - two ways to build dApps on zk-Rollups:
         - app-specific circuit (ASIC):
-            - very limited (R1CS only supports addition and multiplication)
-            - unique circuits for each dapp => reduced overhead
+            - very limited (R1CS only supports addition and multiplication). Circuit == program representation used in a zero knowledge proof 
+            - unique circuits for each dapp => reduced overhead for dapps
             - needs high-level dev expertise in circuit design
-        - universal EVM for sart contract execution
-- (Proto) Danksharding:
-    - implements new tx type which will hold additional data field called **blob** (byte string up to ~125kB). 
-    - TODO:
-        - [EIP-4844](https://www.eip4844.com/)
-        - [FAQ](https://notes.ethereum.org/@vbuterin/proto_danksharding_faq#Proto-Danksharding-FAQ)
-        - [KZG polynomial commitments](https://dankradfeist.de/ethereum/2020/06/16/kate-polynomial-commitments.html)
-        - [eip-4844](https://eips.ethereum.org/EIPS/eip-4844)
-        - [eip-4444](https://notes.ethereum.org/@vbuterin/proto_danksharding_faq)
+        - universal EVM for smart contract execution
+- [(Proto) Danksharding](https://notes.ethereum.org/@vbuterin/proto_danksharding_faq#Proto-Danksharding-FAQ):
+    - implements most of the logic and scaffolding for full Danksharding, but not yet implementing any sharding
+    - the main feature is the introduction of a **blob-carrying transaction**, which is like a regular tx but it carries an extra piece of data called **blob**
+        - blobs are extremely large (byte string up to ~125kB)
+        - blobs are committed with [KZG commitment](https://dankradfeist.de/ethereum/2020/06/16/kate-polynomial-commitments.html) scheme and are forward compatible with DAS
+        - blobs are not accessible to the EVM and deleted after 1-3 months. The EVM can only view a commitment to the blob. Blobs are stored by the consensus layer (beacon chain)
+        - blob is a vector of 4096 field elements, numbers within the range 0 <= x < 52435875175126190479447740508185965837690552500527637822603658699938581184513
+    - currlently rollups post txs on L1 using CALLDATA (proccessed by all nodes and stored on-chain permanently)
+    - once proto-danksharding is rolled out, execution layer, rollups and users need to do no further work to finish the transition to full sharding
+    - the main practical difference between [EIP-4488](https://eips.ethereum.org/EIPS/eip-4488) and [EIP-4844](https://eips.ethereum.org/EIPS/eip-4844) is that EIP-4488 attempts to minimize the changes needed today, whereas proto-danksharding makes a larger number of changes today so that few changes are required in the future to upgrade to full sharding
+    - leads to a maximum usage of ~1MB/block (~2.5TB/year)
+    - consensus layer can implement separate logic to auto-delete blob data after some time (e.g 30 days) and not dependent of [EIP-4444](https://eips.ethereum.org/EIPS/eip-4444) implementation
+    - in the long run  full sharding will add ~40 TB of historical data per year => some history expiry mechanism is mandatory
+    - historical data will be stored by rollups, block explorers, hobbyinsts, indexing protocols etc, not by the consensus protocol
+    - learn more about EIP-4844 on [Bankless](https://www.youtube.com/watch?v=N5p0TB77flM) or [Optimism](https://www.youtube.com/watch?v=KQ_kIlxg3QA)
 
 ## [1.4. Maths and Cryptography](https://www.youtube.com/watch?v=vi5I2KcMPxo)
 
 ## [2.1. Understanding and Analysing Layer 2 ](https://www.youtube.com/watch?v=rxZTgcdBiyU)
 
 ## [2.2. Agnostic Layer 2 Transaction Lifecycle](https://www.youtube.com/watch?v=_H0fc4vSxq4)
+
+## [2.3. Arbitrum Workshop / Transaction Lifecycle cont](https://www.youtube.com/watch?v=DypJJMo4GoQ)
+
+## [2.4. Rollups v ZK Rollups/Decentralized Sequencers](https://www.youtube.com/watch?v=GIyzralsT2I)
