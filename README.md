@@ -157,6 +157,53 @@
 
 ## [1.4. Maths and Cryptography](https://www.youtube.com/watch?v=vi5I2KcMPxo)
 
+- Fully Homomorfic Encryption (FHE):
+    - a form of encryption that allows arbitrary computation on encrypted data
+    - an additional evaluation capability for computing over encrypted data without access to the secret key
+    - the result of such encryption remains encrypted
+    - extension of either symmetric-key or public-key cryptography
+    - algebra example: considering `f(n) = e^n` homomorphism means `f(m + n) = e^(m + n) = e^m * e^n = f(m) * f(n)`
+    - private computation: [fhEVM](https://www.zama.ai/fhevm) from [Zama.ai](https://www.zama.ai/)
+- VRF explanation from [Algorand](https://medium.com/algorand/algorand-releases-first-open-source-code-of-verifiable-random-function-93c2960abd61)
+- Modular aritmetic [introduction](https://www.khanacademy.org/computing/computer-science/cryptography/modarithmetic/a/what-is-modular-arithmetic):
+    - multiples of B end up in the same spot: `A % B = (A + K*B) % B` for any integer K
+    - A is congurent to B modulo C: `A == B mod C` (A and B are in the same equivalence class)
+- Group theory:
+    - set of elements and a binary operation (e.g. *)
+    - must have these properties:
+        - closure: for all a, b in G => a*b is also in G
+        - associativity: (a * b) * c = a * (b * c)
+        - identity element: a * e = e * a = a
+        - inverse element: for each a in G there is a b (denoted as -a or a^-1) such that a * b = b * a = e
+    - sub group: a set of elements which has the group properties is a subgroup of the original group
+    - finite group: can be cyclic and has a generator
+- Fields:
+    - set of integers and 2 operations called addition and multiplication
+    - field axioms:
+        - associativity
+        - commutativity
+        - additive & multiplicative identity
+        - additive & multiplicative inverses
+        - distributivity of multiplication over addition: a * (b + c) = (a * b) + (a * c)
+    - [finite fields](https://asecuritysite.com/encryption/finite): a set of elements such as the set of integers mod p whare p is a prime
+    - order of the field == the number of elements in the field's set. For a finite field it's either:
+        - prime
+        - power of prime (extension field)
+    - every finite field has a generator which can generate the elements in the set be exponentiating the generator
+        - Z(5) = {0,1,2,3,4} => it's cyclic and has two generators, 2 and 3:
+            - 2^1 = 2, 2^2=4, 2^3=3, 2^4=1
+            - 3^1 = 3, 3^2=4, 3^3=2, 3^4=1
+- Group homomorphisms
+    - A homomorphism is a map between two algebraic structures of the same type, tha tpreserves the operations of the structures: f(x*y) = f(x)*f(y)
+- Equivalence classes
+    - x mod 7 = 6 => x can be 6, 13, 20 and they form an equivalence class
+    this give us the basis of a one way fn
+- Fermat's little theorem is useful for finding a multiplicative inverse
+    - a^-1 == a^p-2(modp)
+
+- Polynomial introduction
+    - TODO
+
 ## [2.1. Understanding and Analysing Layer 2 ](https://www.youtube.com/watch?v=rxZTgcdBiyU)
 
 ## [2.2. Agnostic Layer 2 Transaction Lifecycle](https://www.youtube.com/watch?v=_H0fc4vSxq4)
