@@ -211,3 +211,5 @@
 ## [2.3. Arbitrum Workshop / Transaction Lifecycle cont](https://www.youtube.com/watch?v=DypJJMo4GoQ)
 
 ## [2.4. Rollups v ZK Rollups/Decentralized Sequencers](https://www.youtube.com/watch?v=GIyzralsT2I)
+
+## [3.1. L3s / Hyperchains](https://www.youtube.com/watch?v=Cjse_ZSFIKE)
