@@ -213,3 +213,9 @@
 ## [2.4. Rollups v ZK Rollups/Decentralized Sequencers](https://www.youtube.com/watch?v=GIyzralsT2I)
 
 ## [3.1. L3s / Hyperchains](https://www.youtube.com/watch?v=Cjse_ZSFIKE)
+
+## [3.2. Privacy in Layer 2 / Aztec Workshop](https://www.youtube.com/watch?v=lAyW5JkyFfc)
+
+## [3.3. What are ZK EVMs Part 1 (Overview)](https://www.youtube.com/watch?v=2oJSoVqpH7k)
+
+## [3.4. What are ZK EVMs Part 2 (Universal Circuits) ](https://www.youtube.com/watch?v=d046QtF6fqM)
