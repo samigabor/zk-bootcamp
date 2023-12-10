@@ -165,7 +165,7 @@
     - algebra example: considering `f(n) = e^n` homomorphism means `f(m + n) = e^(m + n) = e^m * e^n = f(m) * f(n)`
     - private computation: [fhEVM](https://www.zama.ai/fhevm) from [Zama.ai](https://www.zama.ai/)
 - VRF explanation from [Algorand](https://medium.com/algorand/algorand-releases-first-open-source-code-of-verifiable-random-function-93c2960abd61)
-- Modular aritmetic [introduction](https://www.khanacademy.org/computing/computer-science/cryptography/modarithmetic/a/what-is-modular-arithmetic):
+- Modular arithmetic [introduction](https://www.khanacademy.org/computing/computer-science/cryptography/modarithmetic/a/what-is-modular-arithmetic):
     - multiples of B end up in the same spot: `A % B = (A + K*B) % B` for any integer K
     - A is congurent to B modulo C: `A == B mod C` (A and B are in the same equivalence class)
 - Group theory:
@@ -218,4 +218,123 @@
 
 ## [3.3. What are ZK EVMs Part 1 (Overview)](https://www.youtube.com/watch?v=2oJSoVqpH7k)
 
+- zkVM:
+    - [VMs](https://www.cs.nmt.edu/~doshin/t/s10/cs589/pub/10.SmithComputer05.pdf) provide the functionality of a computer
+    - Instructure Set Architecture defines how CPU is controlled by the software. There are 3 main types:
+        - register based
+        - stack based (EVM)
+        - accumulator based
+    - a zkVM == combination of zk proof and a VM. It consists of two parts:
+        - compiler that will compile high-level languages (C++/Rust) into intermediate (IR) expressions for the ZK system to perform
+        - ISA (Instruction Architecture) => executes instructions about CPU operations & instructs the CPU to perform operations
+- EVM architecture:
+    - the opcodes need to interact with Stack, Memory and Storage
+    - Stack => used for Stack access
+    - Memory/Storage => accessed randomly
+- zkEVM:
+    - is a VM which recreates all existing EVM opcodes
+    - acts as a state machine, proccesses state transitions from L2 txs
+    - generates validity proofs that confirm the accuracy of the off-chain state change computations
+    - architecture will have a sequencer and prover (or multiples of each), L1-L2 messaging capabilities and a contract on the L1
+    - emulates all of EVM components and their interactions and create proofs that the interactions were correct
+    - phases:
+        - proof focused:
+            - circuit creation
+            - setup (proving/verification keys)
+            - proof creation
+            - proof aggregation
+            - proof acceptance on L1 and verification
+        - L2 aspects:
+            - submit data to DA layer
+            - allow L1-L2 messaging
+            - provide escape hatch via forces txs
+    - workflow:
+        - receive tx
+        - execute bytecode
+        - make state changes and tx receipts
+        - produce proof of correct execution (using zkEVM circuits w execution trace as input)
+        - aggregate proofs for a bundle of txs and submit them to L1
+        - submit data to DA layer
+    - L1 relies on re-execution of SM. Bytecode is stored on storage. Txs are broadcasted accross as P2P network. For each tx, every node executed the bytecode (opcodes within it one by one) with tx as input. Each opcode has 3 sub-steps: read from stack/memory/storage, perform computations, write back the results to stack/memory/storage. 
+    - L2 relies on validity proofs of zkEVM circuits. Bytecode also stored in storage. Txs are sent to a centralized zkEVM node. zkEVM generates succint proof demonstrating correct state transition. L1 contract verifies the proof and updates the state without re-executing the txs.
+    - proofs must:
+        - confirm correct bytecode is loaded
+        - demonstrate opcodes are executed sequentially (without missing/skipping any of them)
+        - verify correct execution of each opcode
+    - taxonomy:
+        - [intro](https://scroll.io/blog/zkEVM)
+        - [overview](https://scroll.mirror.xyz/nDAbJbSIJdQIWqp9kn8J0MVS4s6pYBwHmK7keidQs-k)
+        - [vitalik's view](https://vitalik.ca/general/2022/08/04/zkevm.html)
+        - [circuits](https://github.com/privacy-scaling-explorations/zkevm-circuits)
+        - [specs](https://github.com/privacy-scaling-explorations/zkevm-specs)
+        - [explorations](https://github.com/privacy-scaling-explorations/)
+        - [L2 tx life cycle](https://wiki.polygon.technology/docs/zkevm/protocol/l2-transaction-cycle-intro/)
+    - proving system [overview](https://wiki.polygon.technology/docs/zkevm/zkProver/overview/)
+        - the prover insures that all the rules for a tx to be valid are enforced, otherwise the proof would have no meaning
+        - the circuit/proof is for any general contract
+        - must check:
+            - contract has been loaded correctly
+            - tx signatures are correct
+            - the state changes are correct
+            - the execution proceeded correctly
+        - proofs have 2 componets:
+            - [state proof](https://github.com/privacy-scaling-explorations/zkevm-specs/blob/master/specs/state-proof.md) checks state/memory/stack ops have been performed correctly. Doesn't check for correct read/write location. Helps EVM proof to check all the random read-write access records are valid. Confirms the transition of state trie root is valid.
+            - [EVM proof](https://github.com/privacy-scaling-explorations/zkevm-specs/blob/master/specs/evm-proof.md) checks the correct opcode is called at the correct time. Checks the validity of these opcodes. Confirms opcodes & state proof performed the correct operations
+    - projects:
+        - ranked on [L2Beat](https://l2beat.com/scaling/summary) / [Dune](https://dune.com/cryptokoryo/zk)
+        - [Scroll](https://docs.scroll.io/en/technology/)
+            - settlement layer: 
+                - contains the bridge contract & rollup contract (rollup contract is also the verifier) (deployed on Ethereum)
+                - provides data availability and ordering for the chanonical Scroll chain
+                - verifies validity proofs
+                - allows L1-L2 messaging
+            - sequencing layer contains:
+                - Execution Node:
+                    - executes txs submitted to the Scroll sequencer / L1 bridge contract
+                    - produces L2 blocks
+                - Rollup Node:
+                    - batches txs together
+                    - posts txs data and block info for DA
+                    - submits validity proofs to L1 for finality
+            - proving layer consists of:
+                - provers: generates the validity proofs what verify the correctness of L2 txs
+                - coordinator: dispatches the proving tasks to provers and relays the proofs to Rollup Node
+        - [Polygon](https://wiki.polygon.technology/docs/zkevm/) [zkEVM](https://mirror.xyz/msfew.eth/JJudP_Kf-IS6VhbF-qU0BUor1Ap6SFEb0TzYOHZ34Rc)
+            - Sequencer reads txs from the pool
+            - Sequencer orders and executes txs
+            - executed txs are added to txs batch and Sequencer's local L2 State is updated
+            - once a tx is added to the L2 State, it is broadcasted to all other nodes
+            - fast finality can be achieved (potentially as soon as the sequencer has the tx)
+            - L2 state is in a trusted state until the batch is committed to L1
+        - [zkSync](https://era.zksync.io/docs/)
+            - validator can't corrupt the state or steal funds (unlike sidechains)
+            - users can force withdraw from rollup even if validator stops cooperating because data is available (unlike plasma)
+            - not needed to monitor rollup blocks to prevent fraud (unlike payment channels or optimistic rollups)
+        - [Starknet](https://docs.starknet.io):
+            - [mindmap](https://github.com/0xAsten/Starknet-Tech-Stacks-Mindmap)
+            - [architecture](https://david-barreto.com/starknets-architecture-review/)
+            - [ecosystem](https://www.starknet-ecosystem.com/)
+        - [Risc Zero](https://www.risczero.com/) - zkVM for general computation
+        - [powder](https://docs.powdr.org/) - modular compiler to build zkVMs ([video](https://www.youtube.com/watch?v=P52kocriqFY))
+        - [Polygon Miden](https://www.alchemy.com/overviews/polygon-zk-rollups) - 5000 tx/block => 1000 TPS at launch
+    - proving systems [comparison](https://blog.celer.network/2023/08/04/the-pantheon-of-zero-knowledge-proof-development-frameworks/)
+    - zkVM design [video](https://www.youtube.com/watch?v=tWJZX-WmbeY)
+    - zk proofs [videos](https://www.youtube.com/playlist?list=PLS01nW3Rtgor_yJmQsGBZAg5XM4TSGpPs) / [course](https://zk-learning.org/)
+    - arithmetic circuits:
+        - represented as R1CS => can be transformed into polynomials => next stage in the creation of the proof
+        - can be visualized as a number of addition and multiplication gates
+        - not algorithms => more like hardware circuits
+        - have constrains => satisfied if the correct input to the gates are supplied (i.e. the correct witness)
+        - implemented using large tables => a gate is represented by a row in the table
+
+
+
+
+
+
 ## [3.4. What are ZK EVMs Part 2 (Universal Circuits) ](https://www.youtube.com/watch?v=d046QtF6fqM)
+
+Q:
+1. On L1 goes one proof which is aggregated from multiple proofs. Where do these proofs come from? How are they split. What do they represent individually?
+
+1.
