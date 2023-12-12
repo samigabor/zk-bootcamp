@@ -225,7 +225,7 @@
         - stack based (EVM)
         - accumulator based
     - a zkVM == combination of zk proof and a VM. It consists of two parts:
-        - compiler that will compile high-level languages (C++/Rust) into intermediate (IR) expressions for the ZK system to perform
+        - compiler that will compile high-level languages (C++/Rust) into intermediate expressions (IR) for the ZK system to perform
         - ISA (Instruction Architecture) => executes instructions about CPU operations & instructs the CPU to perform operations
 - EVM architecture:
     - the opcodes need to interact with Stack, Memory and Storage
@@ -299,6 +299,14 @@
             - proving layer consists of:
                 - provers: generates the validity proofs what verify the correctness of L2 txs
                 - coordinator: dispatches the proving tasks to provers and relays the proofs to Rollup Node
+            - workflow [overview](https://www.youtube.com/watch?v=DT8g3veR17k): 
+                - sequencer (fork of geth) receives txs
+                - knowing all opcodes to be executed + related witness => generate the execution trace (execution logs, block header, txs, bytecode, merkle proofs)
+                - generates zkEVM circuits
+                - generate multiple proofs
+                - aggreggation circuit
+                - aggregated proof
+                - sent to  L1 for verification
         - [Polygon](https://wiki.polygon.technology/docs/zkevm/) [zkEVM](https://mirror.xyz/msfew.eth/JJudP_Kf-IS6VhbF-qU0BUor1Ap6SFEb0TzYOHZ34Rc)
             - Sequencer reads txs from the pool
             - Sequencer orders and executes txs
@@ -334,7 +342,75 @@
 
 ## [3.4. What are ZK EVMs Part 2 (Universal Circuits) ](https://www.youtube.com/watch?v=d046QtF6fqM)
 
+State transition, particularly the change in storage (e.g. execution trace) is what must be proved correct: world state(t) + tx => some computation (bytecode & storage) => execution trace => world state(t+1)
+
+- zkSync zkEVM architecture (see [primer](https://github.com/code-423n4/2023-10-zksync/blob/main/docs/VM%20Section/ZkSync%20Era%20Virtual%20Machine%20primer.md))
+    - eraVM is register based (not stack based like EVM), operates on 16 regisers and simplifies zk proofs which rely on building arithmetic circuits
+    - native type for zkEra is 256-bits uint, called **word**
+    - contracts are sequences of instructions. VM provides the following:
+        - registers: 16 general-purpose registers
+        - flags: 3 boolean registers (LT, EQ, GT)
+        - data stack: holds 2**16 words
+        - heap: for data passed between functions and contracts
+        - code memory: stores the code of the currently running contracts
+    - any contract can have at most 2**16 instuctions
+    - besides basic & arithmetic instructions (add, sub, mul, div, shl/shr, rol/ror) the architecture also includes:
+        - modifiers: alter instruction's behaviour; sepparated by a dot e.g. `sub.s`)
+            - set flags
+            - predicates (transforms an instruction into a conditional one)
+            - swap (needed when the second operand is not a register)
+        - far call: equivalend to calls in EVM  (include delegatecall)
+        - near call: passes control to a different address in the same contract
+        - return, revert, panic
+- design challanges:
+    - limmited support for elliptic curves in EVM: EVM only supports BN254 pairing => challenging to perform proof recursion since eliptic curves are not direclty supported
+    - mismatch field sizes: EVM operates with 256-bit int => zk proofs work with prime fields => 100x increase in circuit complexity
+    - special opcodes in EVM (e.g. CALL)
+    - stack-based model vs. register-based model (e.g. Cairo)
+    - Ethereum storage overhead: eth storage relies on keccak and MPT. keccack hash is 1000x larger in circuit size compared to Posseidon
+    - machine-based proof overhead: combining thses challanges together is quite hard
+- technological advancements in key areas:
+    - utilization of Polynomial Commitment Schemes
+    - introduction of lookup tables and customised gates
+    - recursive proofs
+    - hardware acceleration enhances proving efficiency
+
+- zkProccess in general: 
+    - from DSL create a circuit to which public & private (witness) inputs can be added
+    - the goal is to transform this into some mathematical objects
+    - zk circuits are typically composed addition and multiplication gates
+    - gates are represented as rows in a table
+
+- gates and selectors
+    - any algorithm can be represented as a series of gates => gates can represent polynomials
+    - we create constraints on the inputs => which we transform into polynomials which form the basis for the proving system
+    - e.g. addition constraint: a + b - c = 0
+    - optimization: use custom gates instead of generic ones
+
+- lookup tables:
+    - not optimal to always use gates (e.g. for bitwise operations or small range values)
+    - can instead create a lookup table and prepopulate them with values. The proof then becames to show the value exists in the table
+    - schemes to proccess these efficiently: [plookup](https://hackernoon.com/plookup-an-algorithm-widely-used-in-zkevm-ymw37qu) and [Caulk](https://eprint.iacr.org/2022/621) ([video](https://www.youtube.com/watch?v=uEssF2WzIeU)/[slides](https://www.slideshare.net/AlexPruden/caulk-zkstudyclub-caulk-lookup-arguments-in-sublinear-time-a-zapico))
+
+- zkEVM Design:
+    - [Scroll](https://www.youtube.com/watch?v=NHwd-gJ8xg4)
+    - [Polygon](https://docs.polygon.technology/zkEVM/)
+
+- bugs:
+    - explained [here](https://medium.com/chainlight/uncovering-a-zk-evm-soundness-bug-in-zksync-era-f3bc1b2a66d8), [here](https://github.com/chainlight-io/zksync-era-write-query-poc/) and [here](https://commonwealth.im/dydx/discussion/10634-v3-starkware-contract-data-availability-bug)
+    - known vulnerabilities [here](https://github.com/0xPARC/zk-bug-tracker) and  [here](https://github.com/nullity00/zk-security-reviews)
+
+
+## [4.1. What are ZK EVMs Part 3 (Proving System)](https://www.youtube.com/watch?v=AzU-HQP9ng8)
+
+
+
+
 Q:
 1. On L1 goes one proof which is aggregated from multiple proofs. Where do these proofs come from? How are they split. What do they represent individually?
 
-1.
+1. What is a commitment scheme?
+
+1. what is a circuit?
+
+1. What are constraints? How do you write them?
