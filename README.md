@@ -403,14 +403,28 @@ State transition, particularly the change in storage (e.g. execution trace) is w
 
 ## [4.1. What are ZK EVMs Part 3 (Proving System)](https://www.youtube.com/watch?v=AzU-HQP9ng8)
 
+- Plonkish Arithmetization:
+    - custom gates
+    - permutation (equality between different cells)
+    - lookup argument (define a tuple(w) and proof it belongs to a table) => can do range proofs very efficiently, RAM operations etc
+
+- zkEVM takes as input worldState(t), worldState(t+1), and tx
+    - takes the execution trace as witness
+    - spec defines constraints but you need some witness which satisfies these constrains
+    - inside the zkEVM logic we prove the execution trace is uniquily unrolled from the tx; each opcode is valid and read/write is consistent
+    - unroll ex trace into a table, each opcode maps to a step split into three parts:
+        - step context contains:
+            - codehash
+            - gas left
+            - program counter, stack pointer
+        - case switch contains all the opcode posibilities and error cases for one step:
+            - select opcodes & error cases
+            - exactly one is switched on
+        - opcode specific witness contains all the necessary witness needed for this step i.e. operands, carry, limbs ..
 
 
+## [4.2. zkEVM Security](https://www.youtube.com/watch?v=6SLVAnUmL-4)
 
-Q:
-1. On L1 goes one proof which is aggregated from multiple proofs. Where do these proofs come from? How are they split. What do they represent individually?
+## [4.3. Overview of Proving Systems](https://www.youtube.com/watch?v=CPGDt2i0qMk)
 
-1. What is a commitment scheme?
-
-1. what is a circuit?
-
-1. What are constraints? How do you write them?
+## [4.4. SNARK Implementation](https://www.youtube.com/watch?v=SkExNrVfiuo)
