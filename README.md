@@ -427,4 +427,65 @@ State transition, particularly the change in storage (e.g. execution trace) is w
 
 ## [4.3. Overview of Proving Systems](https://www.youtube.com/watch?v=CPGDt2i0qMk)
 
+- proofs require ([starkware overview]((https://medium.com/starkware/the-cambrian-explosion-of-crypto-proofs-7ac080ac9aed)) / [illustrated primer](https://blog.cryptographyengineering.com/2014/11/27/zero-knowledge-proofs-illustrated-primer/)):
+    - completness: for any correct statement there is an honest prover that can convince an honest verifier (with very high probability)
+    - soundness: for an incorrect statement a dishonest prover can NOT convince an honest verifier (V must run in polynomial time)
+- statement == proposition we want to prove and depends on:
+    - instance variables (public)
+    - witness variables (private)
+
+- SNARK (succint non-interactive argument of knowledge)
+
+- STARK (scalable transparent arguments of knowledge):
+    - simpler cryptographic assumptions than SNARKs
+    - stark proccess has two steps:
+        - creation of an execution trace and polynomial constraints
+        - conversion of these two components into a low-degree polynomial
+
+- FRI (fast reed-solomon IOP of proximity):
+    - protocol that establishes that a committed polynomial has a bounded degree
+    - it aims to find if a set of points are mostly on a polynomial of low degree and can achieve liear proof complexity and logaithmic verification complexity
+
+- bulletproof
+    - short non-interactive zk proofs without a trusted setup
+    - cryptographic assumption is in the discrete log problem
+    - are made non-interactive using the Fiat-Shamir heuristic
+    - designed to provide confidential txs for cryptocurrencies
+    - support proof aggregation
+    - Pederson commitments are used for the inputs
+    - don't require pairings and work with any eliptic curve
+    - verifier cost scales linearly with the computation size
+    - use cases: 
+        - range proofs
+        - merkle proofs (accumulators)
+        - proof of solvency
+
+- plonkish protocols:
+    - early SNARK implementations (Groth16) depend on a common refference string (large set on points on a elliptic curve, created out of randomness)
+    - created out of randomness but with strong algebraic relationships to one another
+    - knowledge of randomness could give an attacker the ability to create false proofs
+    - secure as long of one of the party in the setup forgets their share of the secret
+    - downside is that if you change your program and introcude a new circuit you require a fresh trusted setup
+    - plonk process: universal and updateable trusted setup (one single trusted setup for the whole scheme after which you can use the scheme with any program)
+    - [Halo2](https://erroldrummond.gitbook.io/halo2-tutorial/section-1/halo2-essentials) is a proving system that combines Halo recursion technique with an arithmetisation based on PLONK and a polynomial commitment scheme based around the Inner Product Argument
+
+- customisable constraint systems (CCS) is a generalization of R1CS that can simultaneously capture R1CS, Plonkish and AIR and not tied to any particular proof system
+
+- folding schemes:
+    - all verification is outside of the circuit
+    - projects: [NOVA](https://www.youtube.com/watch?v=SwonTtOQzAk), [Sangria](https://github.com/geometryresearch/technical_notes/blob/main/sangria_folding_plonk.pdf), [Protostar](https://eprint.iacr.org/2023/620.pdf)
+    - [resources](https://github.com/lurk-lab/awesome-folding)
+
+
+
+
 ## [4.4. SNARK Implementation](https://www.youtube.com/watch?v=SkExNrVfiuo)
+
+Q:
+1. On L1 goes one proof which is aggregated from multiple proofs. Where do these proofs come from? How are they split. What do they represent individually?
+
+1. What is a commitment scheme?
+
+1. what is a circuit?
+
+1. What are constraints? How do you write them?
