@@ -476,10 +476,12 @@ State transition, particularly the change in storage (e.g. execution trace) is w
     - projects: [NOVA](https://www.youtube.com/watch?v=SwonTtOQzAk), [Sangria](https://github.com/geometryresearch/technical_notes/blob/main/sangria_folding_plonk.pdf), [Protostar](https://eprint.iacr.org/2023/620.pdf)
     - [resources](https://github.com/lurk-lab/awesome-folding)
 
-
-
-
 ## [4.4. SNARK Implementation](https://www.youtube.com/watch?v=SkExNrVfiuo)
+
+## [5.1. Lesson 17](https://www.youtube.com/watch?v=jcxRXxsiHCc)
+
+    - StarkNet presentation: https://docs.google.com/presentation/d/e/2PACX-1vSju7mDbAT5_61XHd3iJ7O10i-Gc8hdjMd4L517l014xgjJGNdCn8e6zB-1X46qEDZSWuCT26oS9qNH/pub?start=false&loop=false&delayms=3000&slide=id.g299f5f57b96_1_330
+
 
 Q:
 1. On L1 goes one proof which is aggregated from multiple proofs. Where do these proofs come from? How are they split. What do they represent individually?
