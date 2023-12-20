@@ -478,6 +478,62 @@ State transition, particularly the change in storage (e.g. execution trace) is w
 
 ## [4.4. SNARK Implementation](https://www.youtube.com/watch?v=SkExNrVfiuo)
 
+- SNARKs generally require an initial setup to:
+    - summarise the program C, come to agreement about what to prove
+    - establish some randomness:
+        - if the random value used for the proving system is known we lose the soundness of the system => malicious prover could generate a false proof and convince an honest verifier
+        - randomness is "sharded" by an MPC ceremony => just one honest person in the ceremony will make the system sound
+        - verifier issues the challange affter the prover has alredy fixed her randomness. Prover first **commits** to his randomness and implicitly reveals it only after the challange when he uses that value to compute the proof. This ensures two things:
+            - verifier cannot **guess** what value the prover committed to
+            - prover cannot **change** the value he committed to
+    - **downside**: if the program C is changed, the whole setup including the MPC needs to be repeated
+    SNARK variants (SONIC, PLONK...) allow for MPC to be reused and only part of the setup be run again
+    - advantages: 
+        - small proof size
+        - fast verification
+        - generic approach
+    - drawbacks: 
+        - require trusted setup
+        - very long proving keys
+        - proof generation is impractical on constrained devices
+        - strong security assumptions not well tested
+        - difficult to understand
+    - good verification [gas cost](https://a16zcrypto.com/posts/article/measuring-snark-performance-frontends-backends-and-the-future/) (300k for PLONK vs. 5mil for StarkWare)
+
+- setup is not needed for STARKS (transparent means there is no secret randomness) and Bulletfroofs
+
+- arithmetisation is the process of turning a program (DSL) into a number of polynomials which the verifier can check succinctly
+
+- Schwatrz-Zippel Lemma: two different polynomials of degree at most `d` can agree on at most `d` points
+
+- reading: [proof generation article](https://scroll.io/blog/proofGeneration) / [implementation of transaction table](https://github.com/scroll-tech/zkevm-circuits/blob/develop/zkevm-circuits/src/table.rs#L123) / [security and performance](https://a16zcrypto.com/posts/article/snark-security-and-performance/#section--5)
+
+- Fiat Shamir Heuristic => converts an interactive proof into a non-interactive one (squash the interaction into one step). Achieved using a cryptographic hash function
+    - public coin protocols - verifier is using randomness when sending queries to the prover i.e. like flipping a coin
+    - random oracle model - both parties are given blackbox access to a random function
+    - general process:
+        - setup: verifier generates public & secret keys
+        - commitment: verifier commits to a random challenge (hashing it with some additional data). The commitment is sent to the prover
+        - response: hash(verifier commitment, prover secret key)
+        - verification: verifier checks certain conditions (defined by the original scheme) on the prover response
+
+- SNARKs & STARKs are general purpose systems for creating proofs
+
+- other useful techniques:
+    - blind signatures
+    - accumulators
+    - Pedersen commitments
+    - [Sigma protocols](https://coders-errand.com/are-zk-snarks-the-right-tool-for-you-part-3/): 
+        - advantages: 
+            - very economical for small circuits
+            - do not require a trusted setup
+            - security assumptions are weak and well understood
+            - fairly easy to understand
+        - disadvantages:
+            - do not scale well: proof size, proof generation and verification are linear to statement complexity
+            - can not easity handle generic computation => better suited to algebraic constructions
+
+
 ## [5.1. Lesson 17](https://www.youtube.com/watch?v=jcxRXxsiHCc)
 
     - StarkNet presentation: https://docs.google.com/presentation/d/e/2PACX-1vSju7mDbAT5_61XHd3iJ7O10i-Gc8hdjMd4L517l014xgjJGNdCn8e6zB-1X46qEDZSWuCT26oS9qNH/pub?start=false&loop=false&delayms=3000&slide=id.g299f5f57b96_1_330
