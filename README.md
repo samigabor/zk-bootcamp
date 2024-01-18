@@ -534,16 +534,20 @@ State transition, particularly the change in storage (e.g. execution trace) is w
             - can not easity handle generic computation => better suited to algebraic constructions
 
 
-## [5.1. Lesson 17](https://www.youtube.com/watch?v=jcxRXxsiHCc)
+## [5.1. STARK Implementation](https://www.youtube.com/watch?v=jcxRXxsiHCc)
 
     - StarkNet presentation: https://docs.google.com/presentation/d/e/2PACX-1vSju7mDbAT5_61XHd3iJ7O10i-Gc8hdjMd4L517l014xgjJGNdCn8e6zB-1X46qEDZSWuCT26oS9qNH/pub?start=false&loop=false&delayms=3000&slide=id.g299f5f57b96_1_330
 
+## [5.2. Plonk 1 / Linea](https://www.youtube.com/watch?v=u_9LjJfr7Ss)
 
-Q:
-1. On L1 goes one proof which is aggregated from multiple proofs. Where do these proofs come from? How are they split. What do they represent individually?
+## [5.3. Plonk 2 / Boojum](https://www.youtube.com/watch?v=PCVku7yPXyA)
 
-1. What is a commitment scheme?
+## [5.4. zkML](https://www.youtube.com/watch?v=1wepj5kmwuU)
 
-1. what is a circuit?
+## [6.1. Formal Verification](https://www.youtube.com/watch?v=la1mNU0rc9U)
 
-1. What are constraints? How do you write them?
+## [6.2. Risc Zero](https://www.youtube.com/watch?v=S5UScvL9MO4)
+
+## [6.3. Scroll](https://www.youtube.com/watch?v=E8djfgGovUw)
+
+## [6.4. Review](https://www.youtube.com/watch?v=1CfFczH4VP8)
